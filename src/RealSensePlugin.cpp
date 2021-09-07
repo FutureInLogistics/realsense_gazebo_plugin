@@ -29,7 +29,8 @@
 using namespace gazebo;
 
 /////////////////////////////////////////////////
-RealSensePlugin::RealSensePlugin() {
+RealSensePlugin::RealSensePlugin()
+{
   this->depthCam = nullptr;
   this->ired1Cam = nullptr;
   this->ired2Cam = nullptr;
@@ -50,7 +51,8 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   cameraParamsMap_.insert(std::make_pair(IRED1_CAMERA_NAME, CameraParams()));
   cameraParamsMap_.insert(std::make_pair(IRED2_CAMERA_NAME, CameraParams()));
 
-  do {
+  do
+  {
     std::string name = _sdf->GetName();
     if (name == "depthUpdateRate")
       _sdf->GetValue()->Get(depthUpdateRate_);
@@ -110,11 +112,14 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
       this->prefix = _sdf->GetValue()->GetAsString();
     else if (name == "robotNamespace")
       break;
+    else if (name == "depthNoise")
+      _sdf->GetValue()->Get(depthNoise_);
     else
       throw std::runtime_error("Invalid parameter for ReakSensePlugin");
 
     _sdf = _sdf->GetNextElement();
   } while (_sdf);
+  std::cout << "Done!" << std::endl;
 
   // Store a pointer to the this model
   this->rsModel = _model;
@@ -141,32 +146,39 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
                        ->Camera();
 
   // Check if camera renderers have been found successfuly
-  if (!this->depthCam) {
+  if (!this->depthCam)
+  {
     std::cerr << "RealSensePlugin: Depth Camera has not been found"
               << std::endl;
     return;
   }
-  if (!this->ired1Cam) {
+  if (!this->ired1Cam)
+  {
     std::cerr << "RealSensePlugin: InfraRed Camera 1 has not been found"
               << std::endl;
     return;
   }
-  if (!this->ired2Cam) {
+  if (!this->ired2Cam)
+  {
     std::cerr << "RealSensePlugin: InfraRed Camera 2 has not been found"
               << std::endl;
     return;
   }
-  if (!this->colorCam) {
+  if (!this->colorCam)
+  {
     std::cerr << "RealSensePlugin: Color Camera has not been found"
               << std::endl;
     return;
   }
 
   // Resize Depth Map dimensions
-  try {
+  try
+  {
     this->depthMap.resize(this->depthCam->ImageWidth() *
                           this->depthCam->ImageHeight());
-  } catch (std::bad_alloc &e) {
+  }
+  catch (std::bad_alloc &e)
+  {
     std::cerr << "RealSensePlugin: depthMap allocation failed: " << e.what()
               << std::endl;
     return;
@@ -208,7 +220,8 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
 
 /////////////////////////////////////////////////
 void RealSensePlugin::OnNewFrame(const rendering::CameraPtr cam,
-                                 const transport::PublisherPtr pub) {
+                                 const transport::PublisherPtr pub)
+{
   msgs::ImageStamped msg;
 
   // Set Simulation Time
@@ -233,7 +246,8 @@ void RealSensePlugin::OnNewFrame(const rendering::CameraPtr cam,
 }
 
 /////////////////////////////////////////////////
-void RealSensePlugin::OnNewDepthFrame() {
+void RealSensePlugin::OnNewDepthFrame()
+{
   // Get Depth Map dimensions
   unsigned int imageSize =
       this->depthCam->ImageWidth() * this->depthCam->ImageHeight();
@@ -243,14 +257,18 @@ void RealSensePlugin::OnNewDepthFrame() {
 
   // Convert Float depth data to RealSense depth data
   const float *depthDataFloat = this->depthCam->DepthData();
-  for (unsigned int i = 0; i < imageSize; ++i) {
+  for (unsigned int i = 0; i < imageSize; ++i)
+  {
     // Check clipping and overflow
     if (depthDataFloat[i] < rangeMinDepth_ ||
         depthDataFloat[i] > rangeMaxDepth_ ||
         depthDataFloat[i] > DEPTH_SCALE_M * UINT16_MAX ||
-        depthDataFloat[i] < 0) {
+        depthDataFloat[i] < 0)
+    {
       this->depthMap[i] = 0;
-    } else {
+    }
+    else
+    {
       this->depthMap[i] = (uint16_t)(depthDataFloat[i] / DEPTH_SCALE_M);
     }
   }
