@@ -114,9 +114,11 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
       break;
     else if (name == "depthNoise")
       _sdf->GetValue()->Get(depthNoise_);
-    else
-      throw std::runtime_error("Invalid parameter for ReakSensePlugin");
-
+    else {
+        std::cout << "Coudl not find: " << name << std::endl;
+        throw std::runtime_error("Ivalid parameter for ReakSensePlugin");
+    }
+    
     _sdf = _sdf->GetNextElement();
   } while (_sdf);
   std::cout << "Done!" << std::endl;
