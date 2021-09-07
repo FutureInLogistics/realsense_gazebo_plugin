@@ -50,7 +50,7 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
       << std::endl
       << "RealSensePlugin: The realsense_camera plugin is attach to model, loading parameters... "
       << _model->GetName() << std::endl;
-  std::cout << "hi" << std::endl;
+
   _sdf = _sdf->GetFirstElement();
 
   cameraParamsMap_.insert(std::make_pair(COLOR_CAMERA_NAME, CameraParams()));
@@ -121,10 +121,9 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
       break;
     else if (name == "depthNoise")
       _sdf->GetValue()->Get(depthNoise_);
-    else {
-        std::cout << "Coudl not find: " << name << std::endl;
-        throw std::runtime_error("Ivalid parameter for ReakSensePlugin");
-    }
+    else
+      throw std::runtime_error("Ivalid parameter for ReakSensePlugin");
+
     _sdf = _sdf->GetNextElement();
   } while (_sdf);
   std::cout << "Done!" << std::endl;
