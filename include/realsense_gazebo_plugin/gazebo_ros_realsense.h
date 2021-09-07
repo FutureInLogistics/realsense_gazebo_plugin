@@ -58,6 +58,9 @@ private:
   image_transport::ImageTransport *itnode_;
   ros::Publisher pointcloud_pub_;
 
+  /// Add noise to a single depth point
+  double AddDepthNoise(double depth);
+
 protected:
   image_transport::CameraPublisher color_pub_, ir1_pub_, ir2_pub_, depth_pub_;
 

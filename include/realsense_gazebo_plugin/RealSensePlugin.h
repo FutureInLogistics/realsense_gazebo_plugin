@@ -134,6 +134,8 @@ protected:
 
   float rangeMinDepth_;
   float rangeMaxDepth_;
+  /// \brief the std dev of the depth recorded by the sensor (we can't adjust this via sdf)
+  double depthNoise_;
 };
 }
 #endif

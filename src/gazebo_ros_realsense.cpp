@@ -112,9 +112,11 @@ namespace gazebo
     image_pub->publish(image_msg_, camera_info_msg);
 
     // Store the image_rgb_msg_ for fruther mapping of the depth data towards the RGB channel in FillPointCloudHelper
-    // Note this assumes a equal FOV of RGB image and depth sensor (TODO is there a ways to adjust this?! :D)
+    // Note this assumes a equal FOV of RGB image and depth sensor
     if (camera_id == COLOR_CAMERA_NAME)
       this->image_rgb_msg_ = image_msg_;
+    else
+      this->image_msg_ = image_msg_;
   }
 
   // Referenced from gazebo_plugins
@@ -158,10 +160,12 @@ namespace gazebo
         else
           yAngle = 0.0;
 
-        double depth = toCopyFrom[index++]; // + 0.0*this->myParent->GetNearClip();
+        double real_depth = toCopyFrom[index++];
 
-        if (depth > pointCloudCutOff_ && depth < pointCloudCutOffMax_)
+        
+        if (real_depth > pointCloudCutOff_ && real_depth < pointCloudCutOffMax_)
         {
+          double depth = this->AddDepthNoise(real_depth);
           // in optical frame
           // hardcoded rotation rpy(-M_PI/2, 0, -M_PI/2) is built-in
           // to urdf/sdf, where the *_optical_frame should have above relative
@@ -264,6 +268,15 @@ namespace gazebo
       this->pointcloud_pub_.publish(this->pointcloud_msg_);
     }
   }
+
+  double GazeboRosRealsense::AddDepthNoise(double depth)
+  {
+    double lb = -1.0*this->depthNoise_;
+    double ub = this->depthNoise_;
+    double rv = lb + static_cast <double> (rand()) /( static_cast <double> (RAND_MAX/(ub-lb)));
+    return depth + depth*rv;
+  }
+
 }
 
 namespace
