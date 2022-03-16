@@ -28,8 +28,7 @@ void GazeboRosRealsense::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
                         "package)");
     return;
   }
-  ROS_INFO("Realsense Gazebo ROS plugin loading.");
-
+  ROS_INFO("Realsense Gazebo ROS plugin loading for model %s.", _model->GetName().c_str());
   RealSensePlugin::Load(_model, _sdf);
 
   this->rosnode_ = new ros::NodeHandle(this->GetHandle());
